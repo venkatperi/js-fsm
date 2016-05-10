@@ -1,7 +1,8 @@
 OP = require './op'
-flatten = require 'flatten'
+Transition = require './Transition'
 
 module.exports = class State
+
   constructor : ( @name, @target ) ->
     @_transitions = {}
     @_outputs = []
@@ -14,26 +15,11 @@ module.exports = class State
       input = OP.not input if unary is 'not'
       @_outputs.push OP.write input, @target, signal
 
-  addTransition : ( t ) =>
-    t.inputs ?= []
-    throw new Error "Transition is missing 'to' state" unless t.to
-    if Array.isArray t.to
-      throw new Error "Can't have multiple transitions for same" +
-          "<state,input> tuple"
-    op = OP.and( OP.input @target, i for i in t.inputs )
-    t.description ?= op.desc()
-
-    to = t.to
-    if @transition to
-      throw new Error "transition to state #{to} from #{@name} already exists"
-
-    if to is '*'
-      throw new Error "Don't know how to transition to wildcard/*"
-
-    @transition to,
-      to : to
-      op : op
-      description : t.description
+  addTransition : ( opts ) =>
+    t = new Transition opts, @target
+    if @transition t.to
+      throw new Error "transition to state #{t.to} from #{@name} already exists"
+    @transition t.to, t
 
   transition : ( state, value )  =>
     return @_transitions[ state ] if arguments.length is 1

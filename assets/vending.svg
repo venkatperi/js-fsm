@@ -1,0 +1,45 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg width="800" height="600" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <ellipse stroke="black" stroke-width="1" fill="none" cx="60.5" cy="293.5" rx="30" ry="30"/>
+    <text x="55.5" y="299.5" font-family="Times New Roman" font-size="20">0</text>
+    <ellipse stroke="black" stroke-width="1" fill="none" cx="266.5" cy="80.5" rx="30" ry="30"/>
+    <text x="261.5" y="86.5" font-family="Times New Roman" font-size="20">5</text>
+    <ellipse stroke="black" stroke-width="1" fill="none" cx="283.5" cy="502.5" rx="30" ry="30"/>
+    <text x="273.5" y="508.5" font-family="Times New Roman" font-size="20">10</text>
+    <ellipse stroke="black" stroke-width="1" fill="none" cx="541.5" cy="80.5" rx="30" ry="30"/>
+    <text x="531.5" y="86.5" font-family="Times New Roman" font-size="20">15</text>
+    <ellipse stroke="black" stroke-width="1" fill="none" cx="749.5" cy="293.5" rx="30" ry="30"/>
+    <text x="739.5" y="299.5" font-family="Times New Roman" font-size="20">20</text>
+    <ellipse stroke="black" stroke-width="1" fill="none" cx="749.5" cy="293.5" rx="24" ry="24"/>
+    <ellipse stroke="black" stroke-width="1" fill="none" cx="554.5" cy="502.5" rx="30" ry="30"/>
+    <text x="544.5" y="508.5" font-family="Times New Roman" font-size="20">25</text>
+    <polygon stroke="black" stroke-width="1" points="81.356,271.935 245.644,102.065"/>
+    <polygon fill="black" stroke-width="1" points="245.644,102.065 236.488,104.339 243.677,111.291"/>
+    <text x="168.5" y="207.5" font-family="Times New Roman" font-size="20">nickle</text>
+    <polygon stroke="black" stroke-width="1" points="82.389,314.015 261.611,481.985"/>
+    <polygon fill="black" stroke-width="1" points="261.611,481.985 259.193,472.866 252.355,480.163"/>
+    <text x="126.5" y="418.5" font-family="Times New Roman" font-size="20">dime</text>
+    <polygon stroke="black" stroke-width="1" points="299.148,476.905 525.852,106.095"/>
+    <polygon fill="black" stroke-width="1" points="525.852,106.095 517.413,110.313 525.945,115.529"/>
+    <text x="418.5" y="310.5" font-family="Times New Roman" font-size="20">nickle</text>
+    <polygon stroke="black" stroke-width="1" points="562.46,101.964 728.54,272.036"/>
+    <polygon fill="black" stroke-width="1" points="728.54,272.036 726.528,262.819 719.374,269.806"/>
+    <text x="591.5" y="207.5" font-family="Times New Roman" font-size="20">nickle</text>
+    <polygon stroke="black" stroke-width="1" points="729.034,315.435 574.966,480.565"/>
+    <polygon fill="black" stroke-width="1" points="574.966,480.565 584.079,478.126 576.767,471.305"/>
+    <text x="597.5" y="389.5" font-family="Times New Roman" font-size="20">nickle</text>
+    <polygon stroke="black" stroke-width="1" points="524.5,502.5 313.5,502.5"/>
+    <polygon fill="black" stroke-width="1" points="313.5,502.5 321.5,507.5 321.5,497.5"/>
+    <text x="394.5" y="493.5" font-family="Times New Roman" font-size="20">nickle</text>
+    <polygon stroke="black" stroke-width="1" points="553.576,472.514 542.424,110.486"/>
+    <polygon fill="black" stroke-width="1" points="542.424,110.486 537.672,118.636 547.668,118.328"/>
+    <text x="553.5" y="297.5" font-family="Times New Roman" font-size="20">dime</text>
+    <polygon stroke="black" stroke-width="1" points="267.708,110.476 282.292,472.524"/>
+    <polygon fill="black" stroke-width="1" points="282.292,472.524 286.966,464.33 276.974,464.732"/>
+    <text x="220.5" y="297.5" font-family="Times New Roman" font-size="20">nickle</text>
+    <polygon stroke="black" stroke-width="1" points="296.5,80.5 511.5,80.5"/>
+    <polygon fill="black" stroke-width="1" points="511.5,80.5 503.5,75.5 503.5,85.5"/>
+    <text x="384.5" y="101.5" font-family="Times New Roman" font-size="20">dime</text>
+</svg>

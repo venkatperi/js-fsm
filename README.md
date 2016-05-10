@@ -1,14 +1,16 @@
 # js-fsm
 ## Moore Finite State Machine (FSM)
 [![Build Status](https://travis-ci.org/venkatperi/js-fsm.svg?branch=master)](https://travis-ci.org/venkatperi/js-fsm)
-[![Coverage Status](https://coveralls.io/repos/github/venkatperi/js-fsm/badge.svg?branch=master)](https://coveralls.io/github/venkatperi/js-fsm?branch=master)
 
-`js-fsm` is a simple javascript Moore Finite State Machine. To use it, define
+
+`js-fsm` is a simple javascript Moore Finite State Machine. A [Moore machine](https://en.wikipedia.org/wiki/Moore_machine) is a finite-state machine whose output values are determined solely by its current state.
+
+To use `js-fsm`, define:
 * the starting state,
 * transitions (from state, to state, and inputs)
 * outputs at each state.
 
-Set your inputs and call `fsm.clock()`.
+Next, set your inputs and call `fsm.clock()`.
 
 ## Installation
 
@@ -23,6 +25,7 @@ npm install prop-it
 
 A vending machine dispenses pieces of candy that cost 20 cents each. The machine accepts nickels and dimes only and does not give change. As soon as the amount deposited equals or exceeds 20 cents, the machine releases a piece of candy. The next coin deposited starts the process over again.
 
+![](assets/vending.svg)
 
 Our state machine has states for the each possible deposited amount: 0 for zero cents deposited, 5 cents, 10 cents, 15 cents, 20 cents and 25 cents.
 
@@ -98,6 +101,8 @@ insert 'nickle'
   * **from** `{String}` is the current state
   * **to** `{String}` is the destination of the transition
   * **inputs** is an `{Array}` of signal names and their required state. A transition is possible only if all inputs are true. A `signal` prefixed with a `!` is negated and so is true if it is low (false) and vice-versa.
+  * **description** is an optional `{String}` which is returned in `leave` and `enter` callbacks.
+
 ```coffeescript
 # This transition will occur only when start is true and cancelled is false
 { from: 'initial', to: 'type', inputs: ['start', '!cancelled']
@@ -156,3 +161,15 @@ Fired when the FSM leaves / enters a state. The callback **cb** receives the sta
 
 #### on('error', cb(Error))
 Fired if an error occurs. e.g. to many transitions from a state.
+
+#### on('changed:signal', cb(new, old))
+Fired when a signal value changes. Signal values can change either by the user by calling fsm.signal(value), or as a result of entering a new state.
+
+#### Order of Events
+
+On a state change, events are emitted in the following order:
+* `'leave'`
+* `changed:signal` for any changed output/signals
+* `enter`
+
+
