@@ -104,7 +104,7 @@ insert 'nickle'
 
 * **outputs** `{Object}` specifies which signals  are to be set (and their value) depending on the current state.
 
-```coffee script
+```coffeescript
 # signal candy will go high only in states 20 and 25 and is low everywhere else
 # FIVE will go high only in state 25 and is low everywhere else
 
