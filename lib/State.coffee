@@ -17,7 +17,9 @@ module.exports = class State
   addTransition : ( t ) =>
     t.inputs ?= []
     throw new Error "Transition is missing 'to' state" unless t.to
-    throw new Error "Can't have multiple transitions for same <state,input> tuple" if Array.isArray t.to
+    if Array.isArray t.to
+      throw new Error "Can't have multiple transitions for same" +
+          "<state,input> tuple"
     op = OP.and( OP.input @target, i for i in t.inputs )
     t.description ?= op.desc()
 

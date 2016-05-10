@@ -22,28 +22,21 @@ class Op
   constructor : ->
     @_output = undefined
 
-  desc : =>
-
-  output : ( value ) =>
-    #    if value != @_output
-    #      @_output = value
-    #      @emit "output", value
-    value
+  desc : ->
 
 class Literal extends Op
   constructor : ( value ) -> @value = Boolean value
 
   desc : => "#{if @value then 'true' else 'false'}"
 
-  output : =>
-    super @value
+  output : => @value
 
 class Wrap extends Op
   constructor : ( other ) -> @other = input other
 
   desc : => "(#{@other.desc()})"
 
-  output : => super @other.output()
+  output : => @other.output()
 
 class Read extends Op
   constructor : ( @target, @name ) ->
@@ -54,7 +47,7 @@ class Read extends Op
 
   desc : => "##{@name}"
 
-  output : => super @read()
+  output : => @read()
 
 class Write extends Op
   constructor : ( @input, @target, @name ) ->
@@ -66,14 +59,14 @@ class Write extends Op
   output : =>
     v = @input.output()
     @write v
-    super v
+    v
 
 class Not extends Op
   constructor : ( i ) -> @input = input i
 
   desc : => "not(#{@input.desc()})"
 
-  output : => super !@input.output()
+  output : => !@input.output()
 
 class Or extends Op
   constructor : ( inputs... ) ->
@@ -81,9 +74,11 @@ class Or extends Op
     @inputs = []
     @inputs.push input i for i in inputs
 
-  desc : => super @inputs.reduce (( a, b ) -> "#{input( a ).desc()} or #{b.desc()}"), ""
+  desc : =>
+    (i.desc() for i in @inputs).join ' or '
 
-  output : => super @inputs.reduce (( a, b ) -> input( a ).output() or input( b ).output()), false
+  output : => @inputs.reduce (
+    ( a, b ) -> input( a ).output() or input( b ).output()), false
 
 class And extends Op
   constructor : ( inputs... ) ->
@@ -94,7 +89,8 @@ class And extends Op
   desc : =>
     (i.desc() for i in @inputs).join ' and '
 
-  output : => super @inputs.reduce (( a, b ) -> input( a ).output() and b.output()), true
+  output : => @inputs.reduce (
+    ( a, b ) -> input( a ).output() and b.output()), true
 
 module.exports = op =
   normalize : normalize

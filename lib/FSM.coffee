@@ -39,9 +39,17 @@ class FSM extends EventEmitter
     collect states, t.from, t.to for t in opts.transitions
     states.add opts.initial
 
+    outputs = {}
+    for own state, out of opts.outputs
+      state = state.split ','
+      for s in state
+        s = s.trim()
+        outputs[ s ] ?= []
+        outputs[ s ].push out
+
     states.forEach ( s ) =>
       state = @_states[ s ] = new State s, @
-      state.outputs opts.outputs[ s ]
+      state.outputs flatten outputs[ s ]
 
   initSignals : ( opts ) =>
     signals = new Set()
@@ -84,6 +92,6 @@ class FSM extends EventEmitter
 
     @_onedge = false
 
-    return next?.to 
+    return next?.to
 
 module.exports = FSM
