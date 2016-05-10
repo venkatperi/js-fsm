@@ -49,7 +49,7 @@ class FSM extends EventEmitter
 
     states.forEach ( s ) =>
       state = @_states[ s ] = new State s, @
-      if outputs[s]
+      if outputs[ s ]
         o = [ outputs[ s ] ]
         state.outputs flatten o
 
@@ -73,6 +73,12 @@ class FSM extends EventEmitter
     @
 
   clock : =>
+    try
+      @doClock()
+    catch err
+      @emit "error", err
+      
+  doClock : =>
     return if @_onedge
 
     @_onedge = true

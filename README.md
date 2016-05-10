@@ -105,8 +105,8 @@ insert 'nickle'
 * **outputs** `{Object}` specifies which signals  are to be set (and their value) depending on the current state.
 
 ```coffeescript
-# signal candy will go high only in states 20 and 25 and is low everywhere else
-# FIVE will go high only in state 25 and is low everywhere else
+# signal 'candy' will go high only in states 20 and 25 and is low everywhere else
+# 'FIVE' will go high only in state 25 and is low everywhere else
 
 outputs :
   '0, 5, 10, 15' : [ '!candy' ]
@@ -138,6 +138,9 @@ fsm
 .clock()
 ```
 
+#### fsm.current()
+The current state's name
+
 ### Events 
 
 #### on('noop', cb())
@@ -150,3 +153,5 @@ fsm
 
 Fired when the FSM leaves / enters a state. The callback **cb** receives the state names **from**, **to** and a string description of why the transition occured.
 
+#### on('error', cb(Error))
+Fired if an error occurs. e.g. to many transitions from a state.

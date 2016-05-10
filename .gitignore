@@ -3,4 +3,5 @@ logs/
 node_modules/
 .idea/
 dist/
+.coveralls.yml
 coverage/

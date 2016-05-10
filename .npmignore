@@ -1,4 +1,4 @@
 Gruntfile.coffee
 lib/
 test/
-coverage/
+.coveralls.yml
