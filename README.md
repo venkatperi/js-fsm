@@ -1,6 +1,7 @@
 # js-fsm
 ## Moore Finite State Machine (FSM)
 [![Build Status](https://travis-ci.org/venkatperi/js-fsm.svg?branch=master)](https://travis-ci.org/venkatperi/js-fsm)
+[![Coverage Status](https://coveralls.io/repos/github/venkatperi/js-fsm/badge.svg?branch=master)](https://coveralls.io/github/venkatperi/js-fsm?branch=master)
 
 `js-fsm` is a simple javascript Moore Finite State Machine. To use it, define
 * the starting state,
