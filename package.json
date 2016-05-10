@@ -17,7 +17,7 @@
   "main": "dist/index",
   "scripts": {
     "prepublish": "grunt",
-    "test": "mocha && istanbul report text-summary lcov && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/     coveralls.js && rm -rf ./coverage"
+    "test": "mocha && istanbul report text-summary lcov"
   },
   "devDependencies": {
     "coffee-coverage": "^1.0.1",
