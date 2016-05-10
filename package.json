@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "coffee-coverage": "^1.0.1",
+    "coveralls": "^2.11.9",
     "grunt": "~0.4",
     "grunt-coffeelint": "0.0.15",
     "grunt-contrib-clean": "^1.0.0",
