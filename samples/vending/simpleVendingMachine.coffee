@@ -11,21 +11,21 @@ fsm = require( '../../index' )
     { from : '15', to : '25', inputs : 'dime' }
   ]
   outputs :
-    '0, 5, 10, 15' : [ '!candy' ]
     '20, 25' : [ 'candy' ]
-    '0, 5, 10, 15, 20' : [ '!FIVE' ]
+    '!20, 25' : [ '!candy' ]
+    '!25' : [ '!FIVE' ]
     '25' : [ 'FIVE' ]
 
-fsm.on "enter", ( from, to, desc ) ->
-  console.log "#{from} -> #{to}, #{desc}" +
+fsm.on "state", ( current, from, desc ) ->
+  console.log "#{from} -> #{current}, #{desc}" +
       "#{if @candy() then ', CANDY' else ''}" +
       "#{if @FIVE() then ', credit=5' else ''}"
 
 insert = ( name ) ->
-  fsm.dime false
-  fsm.nickle false
-  fsm[ name ] true
-  fsm.clock()
+  fsm
+  .reset 'dime', 'nickle'
+  .set name
+  .clock()
 
 insert 'nickle'
 insert 'dime'

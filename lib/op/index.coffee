@@ -19,78 +19,55 @@ input = ( target, name ) ->
   new Literal target
 
 class Op
-  constructor : ->
-    @_output = undefined
-
   desc : ->
 
 class Literal extends Op
   constructor : ( value ) -> @value = Boolean value
-
   desc : => "#{if @value then 'true' else 'false'}"
-
   output : => @value
 
 class Wrap extends Op
   constructor : ( other ) -> @other = input other
-
   desc : => "(#{@other.desc()})"
-
   output : => @other.output()
 
 class Read extends Op
   constructor : ( @target, @name ) ->
-
   read : =>
     x = @target[ @name ]
     if typeof x is 'function' then x() else x
-
   desc : => "##{@name}"
-
   output : => @read()
 
 class Write extends Op
   constructor : ( @input, @target, @name ) ->
-
   write : ( v ) =>
     x = @target[ @name ]
     if typeof x is 'function' then x( v ) else @target[ @name ] = v
-
-  output : =>
-    v = @input.output()
-    @write v
     v
+  desc : => @input.desc()
+  output : => @write @input.output()
 
 class Not extends Op
   constructor : ( i ) -> @input = input i
-
   desc : => "not(#{@input.desc()})"
-
   output : => !@input.output()
 
-class Or extends Op
+class Multi extends Op
   constructor : ( inputs... ) ->
     inputs = flatten inputs
     @inputs = []
     @inputs.push input i for i in inputs
 
-  desc : =>
-    (i.desc() for i in @inputs).join ' or '
+class Or extends Multi
+  desc : => (i.desc() for i in @inputs).join ' or '
+  output : => @inputs.reduce ( ( a, b ) ->
+    input( a ).output() or input( b ).output()), false
 
-  output : => @inputs.reduce (
-    ( a, b ) -> input( a ).output() or input( b ).output()), false
-
-class And extends Op
-  constructor : ( inputs... ) ->
-    inputs = flatten inputs
-    @inputs = []
-    @inputs.push input i for i in inputs
-
-  desc : =>
-    (i.desc() for i in @inputs).join ' and '
-
-  output : => @inputs.reduce (
-    ( a, b ) -> input( a ).output() and b.output()), true
+class And extends Multi
+  desc : => (i.desc() for i in @inputs).join ' and '
+  output : => @inputs.reduce ( ( a, b ) ->
+    input( a ).output() and b.output()), true
 
 module.exports = op =
   normalize : normalize

@@ -1,26 +1,27 @@
 should = require( "should" )
 assert = require( "assert" )
 jsFSM = require '../index'
+merge = require 'merge'
 
 fsm = undefined
 
+init = -> jsFSM
+  initial : 'a'
+  transitions : [
+    {
+      from : 'a'
+      to : 'b'
+      inputs : [ 'start', '!cancelled' ]
+    }
+    { from : 'b', to : 'd', inputs : [ 'toD' ] }
+    { from : [ 'b', 'c' ], to : 'e', inputs : [ 'toE' ] }
+  ]
+  outputs :
+    b : [ 'running', '!abc' ]
+
 describe "fsm", ->
 
-  beforeEach ->
-    fsm = jsFSM
-      initial : 'a'
-      transitions : [
-        {
-          from : 'a'
-          to : 'b'
-          inputs : [ 'start', '!cancelled' ]
-        }
-        { from : 'b', to : 'd', inputs : [ 'toD' ] }
-        { from : [ 'b', 'c' ], to : 'e', inputs : [ 'toE' ] }
-      ]
-      outputs :
-        b : [ 'running', '!abc' ]
-
+  beforeEach -> fsm = init()
 
   it "requires initial state", ( done ) ->
     (-> jsFSM()).should.throw
@@ -54,7 +55,6 @@ describe "fsm", ->
     done()
 
   it "again, clock() is no op without proper inputs", ( done ) ->
-    fsm.on "noop", -> console.log "noop"
     fsm.current().should.equal 'a'
     fsm.start true
     fsm.clock()
@@ -64,8 +64,6 @@ describe "fsm", ->
     done()
 
   it "clock() with proper inputs", ( done ) ->
-    fsm.on "enter", (from, to, desc) -> console.log "#{from} -> #{to}, #{desc}"
-
     fsm.current().should.equal 'a'
     fsm.start true
     fsm.clock()
@@ -74,4 +72,28 @@ describe "fsm", ->
     fsm.clock()
     fsm.current().should.equal 'd'
     done()
+
+  describe 'persist', ->
+
+    store = {}
+
+    beforeEach ->
+      fsm = init()
+
+    it "stores state and signals in fsm.data", ( done ) ->
+      fsm._data._current.should.exist
+
+      fsm
+      .setStart()
+      .clock()
+      .current().should.be.eql 'b'
+
+      store = fsm.save()
+      done()
+
+    it "restore", ( done ) ->
+      fsm
+      .load store
+      .current().should.eql 'b'
+      done()
 

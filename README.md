@@ -45,7 +45,7 @@ fsm = require( 'js-fsm' )
     { from : '15', to : '20', inputs : [ 'nickle' ] }
     { from : '15', to : '25', inputs : [ 'dime' ] }
   ]
-  
+
   outputs :
     '0, 5, 10, 15' : [ '!candy' ]
     '20, 25' : [ 'candy' ]
@@ -113,13 +113,17 @@ insert 'nickle'
 ```coffeescript
 # signal 'candy' will go high only in states 20 and 25 and is low everywhere else
 # 'FIVE' will go high only in state 25 and is low everywhere else
+# Prefixing with an exclamation will set the outputs for all states other than the
+# specified ones
 
 outputs :
-  '0, 5, 10, 15' : [ '!candy' ]
   '20, 25' : [ 'candy' ]
+  '!20, 25' : [ '!candy' ]
   '0, 5, 10, 15, 20' : [ '!FIVE' ]
   '25' : [ 'FIVE' ]
 ```
+
+> Prefixing with an exclamation will set the outputs for all states other than the specified ones
 
 #### fsm.signal([value])
 
@@ -153,11 +157,9 @@ The current state's name
 
 `fsm.clock()` resulted in no state change.
 
-#### on('leave', cb(from, to, desc))
+#### on('state', cb(state, from, desc))
 
-#### on('enter', cb(from, to, desc))
-
-Fired when the FSM leaves / enters a state. The callback **cb** receives the state names **from**, **to** and a string description of why the transition occured.
+Fired when the FSM transitions to a state. The callback **cb** receives the state names **state**, **from** and a string description of why the transition occured.
 
 #### on('error', cb(Error))
 Fired if an error occurs. e.g. to many transitions from a state.
@@ -168,8 +170,7 @@ Fired when a signal value changes. Signal values can change either by the user b
 #### Order of Events
 
 On a state change, events are emitted in the following order:
-* `'leave'`
 * `changed:signal` for any changed output/signals
-* `enter`
+* `state`
 
 

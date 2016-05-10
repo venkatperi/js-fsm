@@ -1,5 +1,6 @@
 OP = require './op'
 Transition = require './Transition'
+{Throw, ItemExistsError, InvalidOperationError} = require './util/errors'
 
 module.exports = class State
 
@@ -17,8 +18,8 @@ module.exports = class State
 
   addTransition : ( opts ) =>
     t = new Transition opts, @target
-    if @transition t.to
-      throw new Error "transition to state #{t.to} from #{@name} already exists"
+    Throw ItemExistsError name : "to #{t.to}", itemType : 'transition'
+    .if @transition t.to
     @transition t.to, t
 
   transition : ( state, value )  =>
@@ -30,7 +31,12 @@ module.exports = class State
     matching = []
     for own to, t of @_transitions
       matching.push t if t.op.output()
-    if matching.length > 1
-      throw new Error "Multiple transitions possible from state #{@}"
+    Throw( InvalidOperationError
+      details : "Multiple transitions possible from state #{@}" )
+    .if matching.length > 1
     matching[ 0 ]
+
+  writeOutputs : =>
+    for o in @outputs()
+      o.output() # writes on pull
     
