@@ -82,4 +82,8 @@ insert 'nickle'
 ###
 ```
 
+## API
 
+### fsm(options)
+
+`options` is an 

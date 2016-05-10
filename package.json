@@ -17,7 +17,7 @@
   "main": "dist/index",
   "scripts": {
     "prepublish": "grunt",
-    "test": "mocha --require coffee-coverage/register-istanbul && istanbu l report text-summary lcov"
+    "test": "mocha --require coffee-coverage/register-istanbul && istanbul report text-summary lcov"
   },
   "devDependencies": {
     "coffee-coverage": "^1.0.1",
