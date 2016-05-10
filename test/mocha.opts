@@ -1,0 +1,7 @@
+--require coffee-script/register
+
+--compilers coffee:coffee-script/register
+--timeout 5000
+-R spec
+test/*.coffee
+

@@ -1,0 +1,33 @@
+{
+  "name": "js-fsm",
+  "version": "0.2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/venkatperi/js-fsm.git"
+  },
+  "preferGlobal": false,
+  "description": "add properties with getter/setter, backing store, events and conversion",
+  "dependencies": {
+    "common-errors": "^0.5.3",
+    "error": "^7.0.2",
+    "flatten": "^1.0.2",
+    "prop-it": "^0.2.0"
+  },
+  "bundleDependencies": [],
+  "main": "dist/index",
+  "scripts": {
+    "prepublish": "grunt",
+    "test": "mocha --require coffee-coverage/register-istanbul && istanbul report text-summary lcov"
+  },
+  "devDependencies": {
+    "coffee-coverage": "^1.0.1",
+    "grunt": "^1.0.1",
+    "grunt-coffeelint": "0.0.15",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-coffee": "^1.0.0",
+    "istanbul": "^0.4.3",
+    "should": "^8.3.1"
+  },
+  "author": "Venkat Peri <venkatperi@gmail.com> (http://www.vperi.com/)",
+  "license": "MIT"
+}
