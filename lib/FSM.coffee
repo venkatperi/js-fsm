@@ -49,7 +49,9 @@ class FSM extends EventEmitter
 
     states.forEach ( s ) =>
       state = @_states[ s ] = new State s, @
-      state.outputs flatten outputs[ s ]
+      if outputs[s]
+        o = [ outputs[ s ] ]
+        state.outputs flatten o
 
   initSignals : ( opts ) =>
     signals = new Set()
