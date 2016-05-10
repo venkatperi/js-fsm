@@ -84,6 +84,73 @@ insert 'nickle'
 
 ## API
 
-### fsm(options)
+### Methods
 
-`options` is an 
+#### fsm(options)
+
+`options` is an `{Object}`
+
+* **initial** is a `{String}` with the initial state name.
+
+* **transitions** is an `{Array}` of `{Object}`s that specify the destination state and necessary inputs for each transition
+
+  * **from** `{String}` is the current state
+
+  * **to** `{String}` is the destination of the transition
+
+  * **inputs** is an `{Array}` of signal names and their required state. A transition is possible only if all inputs are true. A `signal` prefixed with a `!` is negated and so is true if it is low (false) and vice-versa.
+
+    ```
+    # This transition will occur only when start is true and cancelled is false
+
+    { from: 'initial', to: 'type', inputs: ['start', '!cancelled']
+    ```
+
+* **outputs** `{Object}` specifies which signals  are to be set (and their value) depending on the current state.
+
+  ```coffee script
+  # signal candy will go high only in states 20 and 25 and is low everywhere else
+  # FIVE will go high only in state 25 and is low everywhere else
+
+  outputs :
+    '0, 5, 10, 15' : [ '!candy' ]
+    '20, 25' : [ 'candy' ]
+    '0, 5, 10, 15, 20' : [ '!FIVE' ]
+    '25' : [ 'FIVE' ]
+  ```
+
+#### fsm.signal([value])
+
+Gets or sets the value of the named signal (signal must be replaced with the appropriate name above).
+
+```coffeescript
+#set signal nickle to true and dime to false
+fsm
+.nickle true
+.dime false
+```
+
+#### fsm.clock()
+
+Instructs the FSM to attempt a transition based on the current input values. If no transition is possible, the fsm will emit a `noop` event. 
+
+```coffeescript
+# sets input values and and transitions (if possible)
+fsm
+.dime false
+.nickle true
+.clock()
+```
+
+### Events 
+
+#### on('noop', cb())
+
+`fsm.clock()` resulted in no state change.
+
+#### on('leave', cb(from, to, desc))
+
+#### on('enter', cb(from, to, desc))
+
+Fired when the FSM leaves / enters a state. The callback **cb** receives the state names **from**, **to** and a string description of why the transition occured.
+
