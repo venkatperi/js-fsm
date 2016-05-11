@@ -1,4 +1,12 @@
 language: node_js
 node_js:
-  - "4"
+- '4'
 before_install: npm install -g grunt-cli mocha coffee-script
+deploy:
+  provider: npm
+  email: venkatperi@gmail.com
+  api_key:
+    secure: CdbhW/HosgIsmJdGxyBgeZJXB/KF6/CqCPhXh6H5ERMXtoW+lk0ko6IG18u8XOE3U1ppMDzgQm9bEBjp4j7aePNfKNcWpP30d7cX4u1oAbeHdoaB1C38DJKLm2Wy8U7vBLgTsoHoXBaXQdofn9KRhTS+5p+jK9pka03pVnx1Xb33eNSm2UwKzID4S/l9W8MdPRcZGM22Rx/VrMfFiD9adNh87yt0nsQcr7FnnSCl96MxEupG+6jHYp2tIWEm4GguHQHZxSVSdYFl0XDROF5UaZnSnhJOIB0XHdZGW/tPmIGZ+ibZSiEdiyHX98JwdWIbfdlV4ZX6wDQ3Rin5al0zI85YgBtBWiKpgWlUSiXDzaGt8RXVqbT7FD1RF/Is6PO5+YDYPwxeQ8ccFY5KAfLJBiMGXsBXt4w5PlFRPcm0r0mE+DVjrpkuOly6l5vUXs73HcC862qI5/0gKcHg1GQgSRbPNXpDGnpfQSMYPpse5cWQTl26rZA9HbQpddJmRetmy9vsFcPMQL509ibVlx8J2Jq6DpNhmLNHFYwKGwAWCKPhENoiFuIhJuVs8b4ABy85DEyN7nHc5phDV4R8+8CDTkijAKzb3YcKeeXNoVE0b9DTUbpkBL621rzNb0T6gVI+oUe82ksng1eRMblMBJzsa7SPVT/rsq/JR2sF3nJpaww=
+  on:
+    tags: true
+    repo: venkatperi/js-fsm
