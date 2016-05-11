@@ -17,7 +17,7 @@ Next, set your inputs and call `fsm.clock()`.
 Install with npm
 
 ```shell
-npm install prop-it
+npm install js-fsm
 ```
 
 ## Example
