@@ -3,28 +3,26 @@ flatten = require 'flatten'
 prop = require 'prop-it'
 State = require './State'
 _ = require 'lodash'
-{Throw, MissingOptionError} = require './util/errors'
+{MissingOptionError} = require './util/errors'
 
 collect = ( target, sources... ) ->
   sources = flatten sources
-  for s in sources
-    unless !s or s is '*'
-      s = s.replace '!', ''
-      target.add s.trim()
+  for s in sources when s and s isnt '*'
+    target.add s.replace('!', '').trim()
   target
 
 class FSM extends EventEmitter
 
   constructor : ( opts = {} ) ->
+    ### !pragma coverage-skip-next ###
     for opt in [ 'initial', 'transitions' ]
-      Throw( MissingOptionError name : opt ).unless opts[ opt ]
+      throw MissingOptionError name : opt unless opts[ opt ]
 
     @_states = {}
     @_data = {}
-
     opts.outputs ?= {}
-
     @initStates opts
+    @initOutputs opts
     @initSignals opts
     @initTransitions opts
 
@@ -36,7 +34,6 @@ class FSM extends EventEmitter
         @current v.name
 
     prop @, name : 'current', store : @_data, field : '_current'
-
     @currentState @state opts.initial
 
   initStates : ( opts ) =>
@@ -45,29 +42,21 @@ class FSM extends EventEmitter
     states.add opts.initial
     states.forEach ( s ) => @_states[ s ] = new State s, @
 
-    allStates = Object.keys @_states
-    outputs = @getOutputs opts, allStates
-
-    states.forEach ( s ) =>
-      state = @state s
-      if outputs[ s ]
-        o = [ outputs[ s ] ]
-        state.outputs flatten o
+  initOutputs : ( opts ) =>
+    outputs = @getOutputs opts
+    @state(s).outputs outputs[ s ] for s in Object.keys @_states
 
   getOutputs : ( opts, allStates ) ->
+    states = Object.keys @_states
     outputs = {}
     for own state, out of opts.outputs
-      do ( state, out ) ->
-        state = state.trim()
-        if state[ 0 ] is '!'
-          invert = state[ 0 ] is '!'
-          state = state[ 1.. ]
-        list = (s.trim() for s in state.split( ',' ))
-        if invert
-          list = (k for k in allStates when k not in list)
-        for s in list
-          outputs[ s ] ?= []
-          outputs[ s ].push out
+      state = state.trim()
+      [state, invert] = [ state[ 1.. ], true ] if state[ 0 ] is '!'
+      list = (s.trim() for s in state.split(','))
+      list = (k for k in states when k not in list) if invert
+      for s in list
+        outputs[ s ] ?= []
+        outputs[ s ].push out
     outputs
 
   initSignals : ( opts ) =>
@@ -84,10 +73,10 @@ class FSM extends EventEmitter
 
   initTransitions : ( opts ) =>
     for t in opts.transitions
-      from = flatten [ t.from ]
-      @state( f ).addTransition t for f in from
+      @state(f).addTransition t for f in flatten [ t.from ]
 
   state : ( name, value ) =>
+    ### !pragma coverage-skip-block ###
     return @_states[ name ] if arguments.length is 1
     @_states[ name ] = value
     @
@@ -111,10 +100,12 @@ class FSM extends EventEmitter
     try
       @doClock()
     catch err
+      ### !pragma coverage-skip-next ###
       @emit "error", err
     @
 
   doClock : =>
+    ### !pragma coverage-skip-next ###
     return if @_onedge
 
     @_onedge = true

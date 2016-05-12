@@ -1,6 +1,7 @@
 OP = require './op'
 Transition = require './Transition'
-{Throw, ItemExistsError, InvalidOperationError} = require './util/errors'
+{ItemExistsError, InvalidOperationError} = require './util/errors'
+flatten = require 'flatten'
 
 module.exports = class State
 
@@ -10,17 +11,20 @@ module.exports = class State
 
   outputs : ( list ) =>
     return @_outputs if arguments.length is 0 or !list
-    for o in list
+    for o in flatten list
       [signal, unary] = OP.normalize o
       input = OP.input true
       input = OP.not input if unary is 'not'
       @_outputs.push OP.write input, @target, signal
+    @
 
   addTransition : ( opts ) =>
-    t = new Transition opts, @target
-    Throw ItemExistsError name : "to #{t.to}", itemType : 'transition'
-    .if @transition t.to
-    @transition t.to, t
+    ### !pragma coverage-skip-next ###
+    if @transition opts.to
+      throw ItemExistsError
+        name : "to #{opts.to}"
+        itemType : 'transition'
+    @transition opts.to, new Transition opts, @target
 
   transition : ( state, value )  =>
     return @_transitions[ state ] if arguments.length is 1
@@ -28,15 +32,14 @@ module.exports = class State
     @
 
   clock : =>
-    matching = []
-    for own to, t of @_transitions
-      matching.push t if t.op.output()
-    Throw( InvalidOperationError
-      details : "Multiple transitions possible from state #{@}" )
-    .if matching.length > 1
+    matching = (t for own to, t of @_transitions when t.enabled())
+    ### !pragma coverage-skip-next ###
+    if matching.length > 1
+      throw InvalidOperationError
+        details : "Multiple transitions possible from state #{@}"
     matching[ 0 ]
 
   writeOutputs : =>
-    for o in @outputs()
-      o.output() # writes on pull
-    
+    o.output() for o in @outputs()
+    @
+

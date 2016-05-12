@@ -1,28 +1,28 @@
 flatten = require 'flatten'
 
+output = ( x ) -> input(x).output()
+
 normalize = ( name ) ->
   name = name.trim()
-  unary = undefined
-  if name[ 0 ] is '!'
-    unary = 'not'
-    name = name[ 1.. ].trim()
-  out = [ name ]
-  out.push unary if unary?
-  out
+  return [ name[ 1.. ].trim(), 'not' ] if name[ 0 ] is '!'
+  [ name ]
 
 input = ( target, name ) ->
   return target if target.output?
-  if arguments.length is 2
-    [name, unary] = normalize name
-    ref = new Read target, name
-    return if unary then new Wrap( new op[ unary ] ref ) else ref
-  new Literal target
+  return new Literal target if arguments.length < 2
+  [name, unary] = normalize name
+  ref = new Read target, name
+  return ref unless unary
+  new Wrap(new op[ unary ] ref)
 
+### !pragma coverage-skip-next ###
 class Op
-  desc : ->
+  desc : -> ""
+  output : ->
 
 class Literal extends Op
   constructor : ( value ) -> @value = Boolean value
+  ### !pragma coverage-skip-next ###
   desc : => "#{if @value then 'true' else 'false'}"
   output : => @value
 
@@ -43,8 +43,10 @@ class Write extends Op
   constructor : ( @input, @target, @name ) ->
   write : ( v ) =>
     x = @target[ @name ]
-    if typeof x is 'function' then x( v ) else @target[ @name ] = v
+    ### !pragma coverage-skip-next ###
+    if typeof x is 'function' then x(v) else @target[ @name ] = v
     v
+  ### !pragma coverage-skip-next ###
   desc : => @input.desc()
   output : => @write @input.output()
 
@@ -55,19 +57,19 @@ class Not extends Op
 
 class Multi extends Op
   constructor : ( inputs... ) ->
-    inputs = flatten inputs
-    @inputs = []
-    @inputs.push input i for i in inputs
+    @inputs = (input i for i in flatten inputs)
+  _join : ( x ) => (i.desc() for i in @inputs).join x
+  _output : ( fn, initial ) => @inputs.reduce ( ( a, b ) ->
+    fn output(a), output(b)), initial
 
 class Or extends Multi
-  desc : => (i.desc() for i in @inputs).join ' or '
-  output : => @inputs.reduce ( ( a, b ) ->
-    input( a ).output() or input( b ).output()), false
+  ### !pragma coverage-skip-next ###
+  desc : => @_join ' or '
+  output : => @_output (( a, b ) -> a or b), false
 
 class And extends Multi
-  desc : => (i.desc() for i in @inputs).join ' and '
-  output : => @inputs.reduce ( ( a, b ) ->
-    input( a ).output() and b.output()), true
+  desc : => @_join ' and '
+  output : => @_output (( a, b ) -> a and b), true
 
 module.exports = op =
   normalize : normalize

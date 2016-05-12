@@ -1,27 +1,26 @@
 OP = require './op'
 flatten = require 'flatten'
-{Throw, MissingOptionError, NotPermittedError} = require './util/errors'
+{MissingOptionError, NotPermittedError} = require './util/errors'
 
 module.exports = class Transition
   constructor : ( opts, target ) ->
-    Throw MissingOptionError name : 'to'
-    .unless opts.to
+    ### !pragma coverage-skip-next ###
+    throw MissingOptionError name : 'to' unless opts.to
 
-    Throw( NotPermittedError
-      details : 'Can\'t have multiple transitions for same' +
-        '<state,input> tuple' )
-    .if Array.isArray opts.to
+    ### !pragma coverage-skip-next ###
+    if Array.isArray opts.to
+      throw NotPermittedError
+        details : 'Can\'t have multiple transitions for same' +
+          '<state,input> tuple'
 
-    opts.inputs ?= []
-    inputs = flatten [ opts.inputs ]
-    op = OP.and( OP.input target, i for i in inputs )
-    opts.description ?= op.desc()
-    to = opts.to
+    ### !pragma coverage-skip-next ###
+    if opts.to is '*'
+      throw NotPermittedError
+        details : 'transition target cannot be a wildcard'
 
-    Throw( NotPermittedError
-      details : 'transition target cannot be a wildcard' )
-    .if to is '*'
+    @to = opts.to
+    inputs = flatten [ opts.inputs or [] ]
+    @op = OP.and(OP.input target, i for i in inputs)
+    @description = opts.description or @op.desc()
 
-    @to = to
-    @op = op
-    @description = opts.description
+  enabled : => @op.output()

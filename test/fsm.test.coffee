@@ -1,5 +1,5 @@
-should = require( "should" )
-assert = require( "assert" )
+should = require("should")
+assert = require("assert")
 jsFSM = require '../index'
 merge = require 'merge'
 
@@ -18,6 +18,7 @@ init = -> jsFSM
   ]
   outputs :
     b : [ 'running', '!abc' ]
+    '!b' : [ 'abc' ]
 
 describe "fsm", ->
 
@@ -36,9 +37,18 @@ describe "fsm", ->
     ).should.throw
     done()
 
+  it "transition needs a 'to'", ( done ) ->
+    ( -> fsm
+      initial : 'a'
+      transitions : [
+        { from : 'a' }
+      ]
+    ).should.throw
+    done()
+
   it "without the proper input, clock() is a no op", ( done ) ->
     fsm.current().should.equal 'a'
-    fsm.start false
+    fsm.resetStart()
     fsm.clock()
     fsm.current().should.equal 'a'
     done()
@@ -65,7 +75,11 @@ describe "fsm", ->
 
   it "clock() with proper inputs", ( done ) ->
     fsm.current().should.equal 'a'
-    fsm.start true
+    fsm.set 'start'
+    fsm.reset 'start'
+    fsm.clock()
+    fsm.current().should.equal 'a'
+    fsm.set 'start'
     fsm.clock()
     fsm.current().should.equal 'b'
     fsm.toD true
