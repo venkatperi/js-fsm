@@ -16,7 +16,6 @@ coffeeCoverage.register
     '/.git'
     '/Gruntfile.coffee'
     '/coffee-coverage-loader.coffee'
-    '/samples'
   ]
   coverageVar : coverageVar
   writeOnExit : writeOnExit

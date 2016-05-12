@@ -49,14 +49,22 @@ class FSM extends EventEmitter
   getOutputs : ( opts, allStates ) ->
     states = Object.keys @_states
     outputs = {}
-    for own state, out of opts.outputs
-      state = state.trim()
-      [state, invert] = [ state[ 1.. ], true ] if state[ 0 ] is '!'
-      list = (s.trim() for s in state.split(','))
-      list = (k for k in states when k not in list) if invert
+    add = ( list, out ) ->
       for s in list
         outputs[ s ] ?= []
         outputs[ s ].push out
+
+    for own state, out of opts.outputs
+      state = state.trim()
+      [state, op] = [ state[ 1.. ], state[ 0 ] ] if state[ 0 ] in [ '!', '^' ]
+      list = (s.trim() for s in state.split(','))
+      invertedList = (k for k in states when k not in list) if op?
+      if op is '^'
+        invertedOutputs = for o in out
+          if o[ 0 ] is '!' then o[ 1.. ] else "!#{o}"
+        add invertedList, invertedOutputs
+      list = invertedList if op is '!'
+      add list, out
     outputs
 
   initSignals : ( opts ) =>
@@ -82,7 +90,8 @@ class FSM extends EventEmitter
     @
 
   reset : ( names... ) =>
-    @[ n ] false for n in names
+    for n in names
+      @[n] false
     @
 
   set : ( names... ) =>
@@ -100,7 +109,6 @@ class FSM extends EventEmitter
     try
       @doClock()
     catch err
-      ### !pragma coverage-skip-next ###
       @emit "error", err
     @
 
