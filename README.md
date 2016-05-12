@@ -1,5 +1,6 @@
 # js-fsm
-## Moore Finite State Machine (FSM)
+### Moore Finite State Machine (FSM)
+
 [![Build Status](https://travis-ci.org/venkatperi/js-fsm.svg?branch=master)](https://travis-ci.org/venkatperi/js-fsm)
 
 
@@ -12,7 +13,7 @@ To use `js-fsm`, define:
 
 Next, set your inputs and call `fsm.clock()`.
 
-## Installation
+# Installation
 
 Install with npm
 
@@ -20,7 +21,7 @@ Install with npm
 npm install js-fsm
 ```
 
-## Example
+# Example
 ### Simple Vending Machine
 
 A vending machine dispenses pieces of candy that cost 20 cents each. The machine accepts nickels and dimes only and does not give change. As soon as the amount deposited equals or exceeds 20 cents, the machine releases a piece of candy. The next coin deposited starts the process over again.
@@ -86,11 +87,11 @@ insert 'nickle'
 ###
 ```
 
-## API
+# API
 
-### Methods
+## Create FSM
 
-#### fsm(options)
+### fsm(options)
 
 `options` is an `{Object}`
 
@@ -125,7 +126,9 @@ outputs :
 
 > Prefixing with an exclamation will set the outputs for all states other than the specified ones
 
-#### fsm.signal([value])
+## Methods
+
+### fsm.signal([value])
 
 Gets or sets the value of the named signal (signal must be replaced with the appropriate name above).
 
@@ -136,7 +139,7 @@ fsm
 .dime false
 ```
 
-#### fsm.clock()
+### fsm.clock()
 
 Instructs the FSM to attempt a transition based on the current input values. If no transition is possible, the fsm will emit a `noop` event. 
 
@@ -148,26 +151,26 @@ fsm
 .clock()
 ```
 
-#### fsm.current()
+### fsm.current()
 The current state's name
 
-### Events 
+## Events 
 
-#### on('noop', cb())
+### on('noop', cb())
 
 `fsm.clock()` resulted in no state change.
 
-#### on('state', cb(state, from, desc))
+### on('state', cb(state, from, desc))
 
 Fired when the FSM transitions to a state. The callback **cb** receives the state names **state**, **from** and a string description of why the transition occured.
 
-#### on('error', cb(Error))
+### on('error', cb(Error))
 Fired if an error occurs. e.g. to many transitions from a state.
 
-#### on('changed:signal', cb(new, old))
+### on('changed:signal', cb(new, old))
 Fired when a signal value changes. Signal values can change either by the user by calling fsm.signal(value), or as a result of entering a new state.
 
-#### Order of Events
+## Order of Events
 
 On a state change, events are emitted in the following order:
 * `changed:signal` for any changed output/signals
