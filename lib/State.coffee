@@ -1,7 +1,6 @@
 OP = require './op'
 Transition = require './Transition'
 {ItemExistsError, InvalidOperationError} = require './util/errors'
-flatten = require 'flatten'
 
 module.exports = class State
 

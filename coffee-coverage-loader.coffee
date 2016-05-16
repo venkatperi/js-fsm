@@ -14,6 +14,7 @@ coffeeCoverage.register
     '/test'
     '/node_modules'
     '/.git'
+    '/samples'
     '/Gruntfile.coffee'
     '/coffee-coverage-loader.coffee'
   ]

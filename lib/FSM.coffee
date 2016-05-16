@@ -1,11 +1,9 @@
 {EventEmitter} = require 'events'
-flatten = require 'flatten'
 prop = require 'prop-it'
 State = require './State'
 _ = require 'lodash'
 {MissingOptionError} = require './util/errors'
-parser = require '../../js-fsm-parser'
-NodeCache = require 'node-cache'
+parser = require 'js-fsm-parser'
 
 class FSM extends EventEmitter
 
