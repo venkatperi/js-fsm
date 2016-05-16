@@ -7,13 +7,13 @@ normalize = ( name ) ->
   return [ name[ 1.. ].trim(), 'not' ] if name[ 0 ] is '!'
   [ name ]
 
-input = ( target, name ) ->
+input = ( target, node ) ->
   return target if target.output?
   return new Literal target if arguments.length < 2
-  [name, unary] = normalize name
+  name = node.id?.name or node
   ref = new Read target, name
-  return ref unless unary
-  new Wrap(new op[ unary ] ref)
+  return ref unless node.invert
+  new Wrap(new Not ref)
 
 ### !pragma coverage-skip-next ###
 class Op

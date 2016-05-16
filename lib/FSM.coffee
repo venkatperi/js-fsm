@@ -4,28 +4,15 @@ prop = require 'prop-it'
 State = require './State'
 _ = require 'lodash'
 {MissingOptionError} = require './util/errors'
-
-collect = ( target, sources... ) ->
-  sources = flatten sources
-  for s in sources when s and s isnt '*'
-    target.add s.replace('!', '').trim()
-  target
+parser = require '../../js-fsm-parser'
+NodeCache = require 'node-cache'
 
 class FSM extends EventEmitter
 
   constructor : ( opts = {} ) ->
-    ### !pragma coverage-skip-next ###
-    for opt in [ 'initial', 'transitions' ]
-      throw MissingOptionError name : opt unless opts[ opt ]
-
-    @_states = {}
     @_data = {}
-    opts.outputs ?= {}
-    @initStates opts
-    @initOutputs opts
-    @initSignals opts
-    @initTransitions opts
 
+  init : =>
     prop @,
       name : 'currentState'
       getter : => @state @current()
@@ -34,54 +21,66 @@ class FSM extends EventEmitter
         @current v.name
 
     prop @, name : 'current', store : @_data, field : '_current'
-    @currentState @state opts.initial
+    initialState = @root.initial.findByType 'InitialState'
+    @currentState @state initialState[ 0 ].id.name
+    @
 
-  initStates : ( opts ) =>
-    states = new Set()
-    collect states, t.from, t.to for t in opts.transitions
-    states.add opts.initial
-    states.forEach ( s ) => @_states[ s ] = new State s, @
+  load : ( str ) =>
+    @root = parser(str)
+    {states, signals, transitions, stateOutputs} = @_findAstObjects @root
 
-  initOutputs : ( opts ) =>
-    outputs = @getOutputs opts
-    @state(s).outputs outputs[ s ] for s in Object.keys @_states
+    @_initStates states
+    @_initSignals signals
+    @_initTransitions transitions
+    @_initOutputs stateOutputs
+    @init()
 
-  getOutputs : ( opts, allStates ) ->
-    states = Object.keys @_states
-    outputs = {}
-    add = ( list, out ) ->
-      for s in list
-        outputs[ s ] ?= []
-        outputs[ s ].push out
+  _initOutputs : ( stateOutputs ) =>
+    allStateNames = @_stateNames()
+    for so in stateOutputs
+      stateNames = _.map so.findByType('State'), ( x ) -> x.id.name
+      outputs = so.findByType 'Output'
+      regular = !so.states.invert || so.states.iff
+      inverted = so.states.invert || so.states.iff
 
-    for own state, out of opts.outputs
-      state = state.trim()
-      [state, op] = [ state[ 1.. ], state[ 0 ] ] if state[ 0 ] in [ '!', '^' ]
-      list = (s.trim() for s in state.split(','))
-      invertedList = (k for k in states when k not in list) if op?
-      if op is '^'
-        invertedOutputs = for o in out
-          if o[ 0 ] is '!' then o[ 1.. ] else "!#{o}"
-        add invertedList, invertedOutputs
-      list = invertedList if op is '!'
-      add list, out
-    outputs
+      if regular
+        @state(s).addOutputs outputs for s in stateNames
 
-  initSignals : ( opts ) =>
-    signals = new Set()
-    collect signals, t.inputs for t in opts.transitions
-    collect signals, out for own state, out of opts.outputs
+      if inverted
+        invStateNames = _.difference allStateNames, stateNames
+        @state(s).addOutputs outputs, true for s in invStateNames
 
-    signals.forEach ( i ) =>
+  _initStates : ( states ) =>
+    @_states ?= {}
+    @_states[ s ] = new State s, @ for s in states
+
+  _findAstObjects : ( root ) ->
+    nodes = {}
+    for type in [ 'state', 'input', 'output' ]
+      t = _.capitalize type
+      nodes[ "#{type}s" ] = _.map root.findUniqByType(t), ( x ) -> x.id.name
+    nodes.signals = _.uniq _.flatten [ nodes.inputs, nodes.outputs ]
+    nodes.transitions = root.findByType 'Transition'
+    nodes.stateOutputs = root.findByType 'StateOutput'
+    nodes
+
+  _initTransitions : ( transitions ) =>
+    for t in transitions
+      from = t.from.findUniqByType 'State'
+      @state(f.id.name).addTransition t for f in from
+
+  _initSignals : ( signals ) =>
+    for i in signals
       n = _.capitalize i
       prop @, name : i, store : @_data
       @[ "set#{n}" ] = => @[ i ] true
       @[ "reset#{n}" ] = => @[ i ] false
       @[ i ] false
 
-  initTransitions : ( opts ) =>
-    for t in opts.transitions
-      @state(f).addTransition t for f in flatten [ t.from ]
+  states : => @_states
+
+  _stateNames : =>
+    _.map @states(), ( x ) -> x.name
 
   state : ( name, value ) =>
     ### !pragma coverage-skip-block ###
@@ -91,16 +90,16 @@ class FSM extends EventEmitter
 
   reset : ( names... ) =>
     for n in names
-      @[n] false
+      @[ n ] false
     @
 
   set : ( names... ) =>
     @[ n ] true for n in names
     @
 
-  load : ( data ) =>
-    _.assignIn @_data, data
-    @
+  #load : ( data ) =>
+  #  _.assignIn @_data, data
+  #  @
 
   save : =>
     _.cloneDeep @_data

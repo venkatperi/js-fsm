@@ -1,21 +1,29 @@
 _ = require 'lodash'
-fsm = require('../../index')
-  initial : '0'
-  transitions : [
-    { from : [ '0', '20' ], to : '5', inputs : 'nickle' }
-    { from : [ '0', '20' ], to : '10', inputs : 'dime' }
-    { from : [ '5', '25' ], to : '10', inputs : 'nickle' }
-    { from : [ '5', '25' ], to : '15', inputs : 'dime' }
-    { from : '10', to : '15', inputs : 'nickle' }
-    { from : '10', to : '20', inputs : 'dime' }
-    { from : '15', to : '20', inputs : 'nickle' }
-    { from : '15', to : '25', inputs : 'dime' }
-  ]
-  outputs :
-    '^5,25' : [ 'light5' ]
-    '^10' : [ 'light10' ]
-    '^15' : [ 'light15' ]
-    '^20, 25' : [ 'lightCandy' ]
+
+vending = """
+initial {
+  state: 0;
+}
+
+transitions {
+  0, 20  -> 5  : nickle;
+  0, 20  -> 10 : dime;
+  5, 25  -> 10 : nickle;
+  5, 25  -> 15 : dime;
+  10     -> 15 : nickle;
+  10     -> 20 : dime;
+  15     -> 20 : nickle;
+  15     -> 25 : dime;
+}
+
+outputs {
+  ^5,25  :  light5;
+  ^10    :  light10;
+  ^15    :  light15;
+  ^20,25 :  lightCandy;
+}
+"""
+fsm = require('../../index')().load vending
 
 width = 9
 
@@ -33,7 +41,7 @@ print header
 hr header.length
 
 fsm.on "state", ( current, from, desc ) ->
-  row = [ desc, from, current,  x(@light5()), x(@light10()),
+  row = [ desc, from, current, x(@light5()), x(@light10()),
     x(@light15()), x(@lightCandy()) ]
   print row
   hr header.length

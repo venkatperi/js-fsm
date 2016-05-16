@@ -1,0 +1,13 @@
+initial {
+  state: state1;
+}
+transitions {
+  state1 -> state2 : input1;
+  state2 -> state3 : input2;
+  state3 -> state1 : input3;
+}
+outputs {
+  state1  : output1;
+  state2  : !output2;
+  ^state3 : output3;
+}

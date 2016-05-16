@@ -1,0 +1,15 @@
+initial {
+  state: charging;
+}
+
+transitions {
+  charging  -> search_humans  : charge_100;
+  search_humans -> charging : charge_10;
+  search_humans -> kill_humans : human_detected;
+  kill_humans -> charging : all_humans_killed;
+}
+
+outputs {
+  ^search_humans, kill_humans: move;
+  search_humans:
+}

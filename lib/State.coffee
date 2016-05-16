@@ -9,22 +9,23 @@ module.exports = class State
     @_transitions = {}
     @_outputs = []
 
-  outputs : ( list ) =>
-    return @_outputs if arguments.length is 0 or !list
-    for o in flatten list
-      [signal, unary] = OP.normalize o
-      input = OP.input true
-      input = OP.not input if unary is 'not'
+  addOutputs : ( outputs, invert ) =>
+    for o in outputs
+      signal = o.id.name
+      inv = o.invert
+      inv = !inv if invert
+      input = OP.input !inv
       @_outputs.push OP.write input, @target, signal
     @
 
-  addTransition : ( opts ) =>
+  addTransition : ( t ) =>
     ### !pragma coverage-skip-next ###
-    if @transition opts.to
+    to = t.to.id.name
+    if @transition to
       throw ItemExistsError
-        name : "to #{opts.to}"
+        name : "#{to}"
         itemType : 'transition'
-    @transition opts.to, new Transition opts, @target
+    @transition to, new Transition t, @target
 
   transition : ( state, value )  =>
     return @_transitions[ state ] if arguments.length is 1
@@ -40,6 +41,6 @@ module.exports = class State
     matching[ 0 ]
 
   writeOutputs : =>
-    o.output() for o in @outputs()
+    o.output() for o in @_outputs
     @
 

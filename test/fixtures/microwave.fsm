@@ -1,0 +1,18 @@
+initial {
+  state: idle;
+}
+
+transitions {
+  idle, completed -> accessing : open;
+  accessing -> idle: !open;
+  idle -> cooking : start;
+  cooking -> interrupted : open;
+  interrupted -> cooking: !open;
+  cooking -> completed : done;
+}
+
+outputs {
+  ^interrupted, accessing: lamp;
+  ^cooking: turntable;
+  ^completed: beep;
+}

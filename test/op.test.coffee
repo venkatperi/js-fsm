@@ -12,17 +12,14 @@ describe "OP", ->
       b : false
     a = op.input obj, 'a'
     b = op.input obj, 'b'
-    notA = op.input obj, ' ! a'
 
   it "input", ( done ) ->
     a.output().should.equal true
     b.output().should.equal false
-    notA.output().should.equal !a.output()
     done()
 
   it "not", ( done ) ->
     op.not( a ).output().should.equal !a.output()
-    op.not( notA ).output().should.equal a.output()
     op.not( b ).output().should.equal !b.output()
     done()
 

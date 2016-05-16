@@ -6,13 +6,6 @@
 
 `js-fsm` is a simple javascript Moore Finite State Machine. A [Moore machine](https://en.wikipedia.org/wiki/Moore_machine) is a finite-state machine whose output values are determined solely by its current state.
 
-To use `js-fsm`, define:
-* the starting state,
-* transitions (from state, to state, and inputs)
-* outputs at each state.
-
-Next, set your inputs and call `fsm.clock()`.
-
 # Installation
 
 Install with npm
@@ -30,26 +23,40 @@ A vending machine dispenses pieces of candy that cost 20 cents each. The machine
 
 Our state machine has states for the each possible deposited amount: 0 for zero cents deposited, 5 cents, 10 cents, 15 cents, 20 cents and 25 cents.
 
+#### FSM DSL
 
-#### Defining the FSM
+`js-fsm` uses a simple domain specific language (DSL) for FSM specifications. 
+
 ```
-fsm = require( 'js-fsm' )
-  initial : '0' # starting balance is zero
-  transitions : [
-    { from : [ '0', '20' ], to : '5', inputs : 'nickle' }
-    { from : [ '0', '20' ], to : '10', inputs : 'dime' }
-    { from : [ '5', '25' ], to : '10', inputs : 'nickle' }
-    { from : [ '5', '25' ], to : '15', inputs : 'dime' }
-    { from : '10', to : '15', inputs : 'nickle' }
-    { from : '10', to : '20', inputs : 'dime' }
-    { from : '15', to : '20', inputs : 'nickle' }
-    { from : '15', to : '25', inputs : 'dime' }
-  ]
-  outputs :
-    '^5,25' : [ 'light5' ]
-    '^10' : [ 'light10' ]
-    '^15' : [ 'light15' ]
-    '^20, 25' : [ 'lightCandy' ]
+initial {
+  state: 0;
+}
+
+transitions {
+  0, 20  -> 5  : nickle;
+  0, 20  -> 10 : dime;    
+  5, 25  -> 10 : nickle;
+  5, 25  -> 15 : dime;
+  10     -> 15 : nickle;
+  10     -> 20 : dime;
+  15     -> 20 : nickle;
+  15     -> 25 : dime;
+}
+
+outputs {
+  ^5,25  :  light5;
+  ^10    :  light10;
+  ^15    :  light15;
+  ^20,25 :  gimmeCandy;
+}
+```
+
+#### Load the FSM
+
+```coffeescript
+jsFSM = require 'js-fsm'
+vending = fs.readFileSync("vending.fsm", 'utf8')
+fsm = jsFSM().load(vending)
 ```
 
 #### Operating the vending machine
@@ -66,7 +73,7 @@ insert 'dime'
 insert 'nickle'
 ```
 
-Output
+#### Output
 
 ```
   coin   |  from   |   to    |    5    |   10    |   15    |  candy
@@ -87,58 +94,79 @@ Output
  ------- + ------- + ------- + ------- + ------- + ------- + -------
 ```
 
+# The FSM DSL
+
+`js-fsm` uses a simple domain specific language (DSL) for its FSM specifications. The DSL parser is uses the [jison](http://jison.org) module.
+
+A FSM specification must include the following sections:
+
+* **initial** - startup information, such as the initial state.
+* **transitions** - specifies state-to-state transitions and the necessary input conditions to enable the transitions.
+* **outputs** - specifies the outputs for states. 
+
+### Initial
+
+Specify the starting state:
+
+```
+initial {
+  state: state1;
+}
+```
+
+### Transitions
+
+A transition is specified as:
+
+```
+<from states> -> <to state> : <inputs>;
+```
+
+where:
+
+* **from states** is a comma separated list of source states to transition from. This list of states is to be interpreted in a boolean **or** sense, i.e. by a from state list of `state1`, `state2`, `state3`, we mean: 'if the FSM in one of `state1` or `state2` or `state3`'. 
+
+  ```
+  from states = <state 1> OR <state 2> OR ... OR <state n>
+  ```
+
+* **to state** is the state to transition to.
+
+* **inputs**  is a comma separated list of input conditions necessary to enable the transition. The list of inputs is interpreted in an **and** boolean sense so that an input list of `input1`, `input2`, `input3` is 'all of `input1` **and** `input2` **and** `input3` must be true'. Inputs can be inverted  with by prefixing with an exclamation operator to indicate a false/low, i.e. `input1`, `! input2` is ' when `input1` is true and `input2` is false'.
+
+  ```
+  contidions = <input 1> AND <input 2> AND ... AND <input n>
+  ...
+  conditions = <input x> AND !<input y>
+  ```
+
+### Outputs
+
+Outputs are spefified for states:
+
+```
+<state list> : <output list>;
+```
+
+where:
+
+* **state list** - a comma separated list of states which share a common set of outputs. The list is interepreted in a boolean **or** sense, i.e. 'if in any of the states of `state1` or `state2`, set the outputs as follows.' The state list can be optionally prefixed with the following operators to modify its meaning:
+  * `!`  **exclamation** operator  -  exclude the provided list  i.e. `all states` **minus** `state list`.
+  * `^` - **caret** operator -  the provided list is `if-and-only-if` . i.e. set the outputs as indicated if the FSM is in one of the the listed states. If the FSM is not in the listed states, set the outputs to the inverse of the listed values.
+
 # API
 
 ## Create FSM
 
-### fsm(options)
+### jsFSM()
 
-`options` is an `{Object}`
-
-* **initial** is a `{String}` with the initial state name.
-
-* **transitions** is an `{Array}` of `{Object}`s that specify the destination state and necessary inputs for each transition
-
-  * **from** `{String}` is the current state
-  * **to** `{String}` is the destination of the transition
-  * **inputs** is an `{Array}` of signal names and their required state. A transition is possible only if all inputs are true. A `signal` prefixed with a `!` is negated and so is true if it is low (false) and vice-versa.
-  * **description** is an optional `{String}` which is returned in `leave` and `enter` callbacks.
-
-```coffeescript
-# This transition will occur only when start is true and cancelled is false
-{ from: 'initial', to: 'type', inputs: ['start', '!cancelled']
-```
-
-* **outputs** `{Object}` specifies which signals  are to be set (and their value) depending on the current state.
-
-```coffeescript
-# signal 'candy' will go high only in states 20 and 25 and is low everywhere else
-# 'FIVE' will go high only in state 25 and is low everywhere else
-# Prefixing with an exclamation will set the outputs for all states other than the
-# specified ones
-
-outputs :
-  '20, 25' : [ 'candy' ]
-  '!20, 25' : [ '!candy' ]
-  '0, 5, 10, 15, 20' : [ '!FIVE' ]
-  '25' : [ 'FIVE' ]
-```
-
-#### Inverting States
-Prefixing with an exclamation `!` will set the outputs for all states other than the specified ones.
-```
-   # Output 'candy' is set reset in states other than 20 and 25
-   '!20, 25': ['!candy']
-```
-
-#### If-and-only-if Output
-Prefixing with a caret `^` sets the state/output combination as `if-and-only-if`
-```
-   # Output 'candy' is set in states 20 and 25, and reset everywhere else
-   '^20, 25': ['candy']
-```
+Create a FSM object.
 
 ## Methods
+
+### fsm.load(spec)
+
+Load the FSM specification from the given `{String}`.
 
 ### fsm.signal([value])
 
@@ -150,6 +178,13 @@ fsm
 .nickle true
 .dime false
 ```
+
+#### Aliases
+
+* `fsm.set(name)` sets the `{String}` signal to true.
+* `fsm.rese(name)` resets the `{String}` signal to false.
+* `fsm.setSignal()` sets signal.
+* `ism.resetSignal()` resets signal.
 
 ### fsm.clock()
 
